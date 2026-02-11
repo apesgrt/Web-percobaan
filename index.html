@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Image to URL - Catbox</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Image to URL (Catbox)</h2>
+    <input type="file" id="fileInput" accept="image/*"><br><br>
+    <button id="uploadBtn">Upload</button>
+    <p id="status"></p>
+    <input type="text" id="resultUrl" readonly style="width: 100%;">
+</div>
+
+<script>
+document.getElementById("uploadBtn").addEventListener("click", async () => {
+    const file = document.getElementById("fileInput").files[0];
+    const status = document.getElementById("status");
+    const resultUrl = document.getElementById("resultUrl");
+
+    if (!file) {
+        alert("Pilih gambarnya dulu!");
+        return;
+    }
+
+    status.innerText = "Uploading...";
+
+    const formData = new FormData();
+    formData.append("reqtype", "fileupload");
+    formData.append("userhash", ""); // kosong jika tidak punya userhash
+    formData.append("fileToUpload", file);
+
+    try {
+        const res = await fetch("https://catbox.moe/user/api.php", {
+            method: "POST",
+            body: formData
+        });
+
+        const text = await res.text();
+        console.log(text);
+        if (text.startsWith("http")) {
+            resultUrl.value = text;
+            status.innerText = "Berhasil!";
+        } else {
+            status.innerText = "Error upload: " + text;
+        }
+    } catch (err) {
+        status.innerText = "Gagal: " + err;
+    }
+});
+</script>
+</body>
+</html>
